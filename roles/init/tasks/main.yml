@@ -1,0 +1,7 @@
+- name: Install packages to install Coral
+  yum:
+    name: "{{ packages }}"
+    state: present
+  vars:
+    packages:
+      - unzip

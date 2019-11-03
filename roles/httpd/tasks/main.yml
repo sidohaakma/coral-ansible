@@ -1,0 +1,41 @@
+- name: Install HTTPD
+  yum: 
+    name: httpd
+    state: installed
+
+- name: Install SSL certs
+  copy:
+    content: "{{ lookup('hashi_vault', 'secret=secrets/ops/certificates/ssl/wildcard/gcc_rug_nl:{{ item }} url=http://localhost:8200')}}"  
+    dest: "/etc/pki/tls/certs/opal_gcc_rug_nl/{{ item }}"
+  with_items:
+    - certificate.crt
+    - private.key
+    - serverchain.crt
+
+- name: Delete default files in HTTPD conf.d directory
+  file:
+    state: absent
+    path: /etc/httpd/conf.d/{{ item }}
+  with_items:
+    - autoindex.conf
+    - README
+    - userdir.conf
+    - welcome.conf
+    - ssl.conf
+
+- name: Install HTTPD virtualhost configuration
+  template: 
+    src: metabrain.j2
+    dest: /etc/httpd/conf.d/metabrain.conf
+
+- name: Copy SSL config file
+  template: 
+    src: options-ssl-httpd.j2 
+    dest: /etc/httpd/conf.d/options-ssl-httpd.conf
+
+- name: Ensure HTTPD is running
+  service:
+   name: httpd
+   state: started
+
+  

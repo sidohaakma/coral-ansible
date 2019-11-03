@@ -1,0 +1,21 @@
+- name: Create destination directory Coral
+  file:
+    path: /usr/local/coral
+    state: directory
+    mode: '0755'
+
+- name: Get Coral release from INESTEC
+  unarchive:
+    src: https://eucanconnect.inesctec.pt/deployment/dist/{{ coral_version }}/coral-docker-dist.zip
+    dest: /usr/local/coral
+    remote_src: yes
+    mode: 655
+
+- name: Copy amended docker-compose
+  copy: 
+    src: docker-compose.yml
+    dest: /usr/local/coral/{{ coral_version }}/
+  
+
+
+    

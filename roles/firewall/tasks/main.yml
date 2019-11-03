@@ -1,0 +1,49 @@
+- name: Install firewalld
+  yum: 
+    name: firewalld
+    state: installed
+
+- name: Set interface on trusted zone
+  firewalld:
+    permanent: true
+    immediate: true
+    zone: trusted
+    interface: docker0
+    state: enabled
+
+- name: Remove interface on trusted zone
+  firewalld:
+    permanent: true
+    immediate: true
+    zone: trusted
+    interface: eth0
+    state: disabled
+
+- name: Allow port 8080 to bind to trusted zone
+  firewalld:
+    port: 8080/tcp
+    permanent: true
+    zone: trusted
+    state: disabled
+
+- name: Install firewall rules
+  firewalld:
+    source: "{{ item }}"
+    zone: internal
+    state: enabled
+    permanent: true
+  with_items:
+    # foyer.hpc.rug.nl
+    # lobby.hpc.rug.nl
+    - 129.125.0.0/16
+    # backup.gcc.rug.nl
+    - 195.169.22.218/32
+    # umcg
+    - 192.87.23.66/32
+    - 192.87.23.67/32
+    - 192.87.23.100/32
+    - 192.87.23.101/32
+    - 192.87.23.102/32
+    - 192.87.23.103/32
+    - 192.87.23.104/32
+    - 192.87.23.105/32
