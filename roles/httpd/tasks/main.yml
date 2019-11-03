@@ -25,8 +25,8 @@
 
 - name: Install HTTPD virtualhost configuration
   template: 
-    src: metabrain.j2
-    dest: /etc/httpd/conf.d/metabrain.conf
+    src: opal.j2
+    dest: /etc/httpd/conf.d/opal.conf
 
 - name: Copy SSL config file
   template: 
