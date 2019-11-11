@@ -5,3 +5,16 @@
   vars:
     packages:
       - unzip
+
+- name: Update bind rules ipv6 for Docker 
+  sysctl:
+    name: net.ipv6.conf.all.forwarding
+    value: '1'
+    state: present
+
+
+- name: Update bind rules ipv4 for Docker 
+  sysctl:
+    name: net.ipv4.ip_forward
+    value: '1'
+    state: present

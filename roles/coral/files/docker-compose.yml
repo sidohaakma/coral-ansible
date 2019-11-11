@@ -15,18 +15,18 @@ services:
     command: bash -c "./wait-for-it.sh --timeout=90 mongo:27017 && ./set_app_route.sh agate && ./docker-entrypoint.sh app"
   opal:
     image: docker-registry.inesctec.pt/coral/coral-docker-images/coral-opal-docker:1.3.1
-    env_file: ./env-files/stack.env
     ports:
-    - 8080:8080
+    - "8080:8080"
+    - "8443:8443"
+    env_file: ./env-files/stack.env
     volumes:
-    - ./scripts/set_app_route.sh:/set_app_route.sh    
     - ./custom/opal/taxonomies:/usr/share/opal/taxonomies
     - opal:/srv
     secrets:
     - OPAL_ADMINISTRATOR_PASSWORD
     - MYSQLIDS_PASSWORD
     - MYSQLDATA_PASSWORD
-    command: bash -c "./wait-for-it.sh --timeout=90 opal-data:3306 && ./wait-for-it.sh --timeout=90 opal-ids:3306 && ./wait-for-it.sh --timeout=120 rserver:6312 && ./wait-for-it.sh --timeout=240 agate:8444 && ./set_app_route.sh opal &&./docker-entrypoint.sh app"
+    command: bash -c "./wait-for-it.sh --timeout=90 opal-data:3306 && ./wait-for-it.sh --timeout=90 opal-ids:3306 && ./wait-for-it.sh --timeout=120 rserver:6312 && ./wait-for-it.sh --timeout=240 agate:8444 && ./docker-entrypoint.sh app"
   mica:
     image: docker-registry.inesctec.pt/coral/coral-docker-images/coral-mica-docker:1.3.2
     env_file: ./env-files/stack.env

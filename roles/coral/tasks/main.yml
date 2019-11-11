@@ -14,7 +14,7 @@
 - name: Copy amended docker-compose
   copy: 
     src: docker-compose.yml
-    dest: /usr/local/coral/{{ coral_version }}/
+    dest: /usr/local/coral/coral-docker-dist_{{ coral_version }}/
   
 
 
