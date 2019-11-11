@@ -42,7 +42,7 @@
     immediate: true
     state: enabled
   with_items:
-   - {{ firewall }}
+    "{{ firewall }}"
  
 - name: Disable ssh for public zone
   firewalld:
@@ -50,5 +50,4 @@
     permanent: yes
     state: disabled
     zone: public
-    
-    
+ 
