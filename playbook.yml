@@ -1,8 +1,10 @@
 - name: Deployment for Opal (deploy with Coral release)
-  hosts: gcc_opal
+  hosts: opal
   vars:
     coral_version: 2.5.1
     ci: false
+    firewall:
+     - xxxx
   roles:
    - init
    - sshd
