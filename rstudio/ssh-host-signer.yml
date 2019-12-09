@@ -1,0 +1,22 @@
+---
+- hosts: all
+  name: Dummy to gather facts
+  tasks: []
+
+- hosts: all
+  name:  Install package(s) which are used by the default installation
+  tasks:
+  - name: Install package(s) required by host key signing
+    yum:
+      name: "{{ item }}"
+      state: present
+    with_items:
+     - curl
+     - initscripts
+     - libselinux-python
+
+- hosts: all
+  roles:
+     - chrisgavin.ansible-ssh-host-signer
+  vars:
+     ssh_host_signer_ca_key: "ssh_host_molgenis_key"
