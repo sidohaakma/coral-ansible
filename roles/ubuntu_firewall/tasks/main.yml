@@ -1,0 +1,60 @@
+- name: Install firewalld
+  yum: 
+    name: firewalld
+    state: installed
+  when: firewall.enabled
+
+- name: Set interface on trusted zone
+  firewalld:
+    permanent: true
+    immediate: true
+    zone: trusted
+    interface: docker0
+    state: enabled
+  when: firewall.enabled
+
+- name: Remove interface on trusted zone
+  firewalld:
+    permanent: true
+    immediate: true
+    zone: trusted
+    interface: eth0
+    state: disabled
+  when: firewall.enabled
+
+- name: Allow port 8080 to bind to trusted zone
+  firewalld:
+    port: 8080/tcp
+    permanent: true
+    zone: trusted
+    state: disabled
+  when: firewall.enabled
+
+- name: Enabled ssh for internal zone  
+  firewalld:
+    service: ssh
+    permanent: yes
+    state: enabled
+    zone: internal
+  when: firewall.enabled
+
+- name: Install firewall rules
+  firewalld:
+    source: "{{ item }}"
+    zone: internal
+    state: enabled
+    permanent: true
+    immediate: true
+    state: enabled
+  with_items:
+    "{{ firewall.ranges }}"
+  when: firewall.enabled
+ 
+- name: Disable ssh for public zone
+  firewalld:
+    service: ssh
+    permanent: yes
+    state: disabled
+    zone: public
+  when: firewall.enabled
+ 

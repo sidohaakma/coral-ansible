@@ -1,10 +1,7 @@
 - name: Install packages to install Coral
-  yum:
-    name: "{{ packages }}"
+  apt:
+    name: unzip
     state: present
-  vars:
-    packages:
-      - unzip
 
 - name: Update bind rules ipv6 for Docker 
   sysctl:

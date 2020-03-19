@@ -2,6 +2,7 @@
   yum: 
     name: firewalld
     state: installed
+  when: firewall.enabled
 
 - name: Set interface on trusted zone
   firewalld:
@@ -10,6 +11,7 @@
     zone: trusted
     interface: docker0
     state: enabled
+  when: firewall.enabled
 
 - name: Remove interface on trusted zone
   firewalld:
@@ -18,6 +20,7 @@
     zone: trusted
     interface: eth0
     state: disabled
+  when: firewall.enabled
 
 - name: Allow port 8080 to bind to trusted zone
   firewalld:
@@ -25,6 +28,7 @@
     permanent: true
     zone: trusted
     state: disabled
+  when: firewall.enabled
 
 - name: Enabled ssh for internal zone  
   firewalld:
@@ -32,6 +36,7 @@
     permanent: yes
     state: enabled
     zone: internal
+  when: firewall.enabled
 
 - name: Install firewall rules
   firewalld:
@@ -42,7 +47,8 @@
     immediate: true
     state: enabled
   with_items:
-    "{{ firewall }}"
+    "{{ firewall.ranges }}"
+  when: firewall.enabled
  
 - name: Disable ssh for public zone
   firewalld:
@@ -50,4 +56,5 @@
     permanent: yes
     state: disabled
     zone: public
+  when: firewall.enabled
  
