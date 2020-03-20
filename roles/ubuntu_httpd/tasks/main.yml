@@ -1,0 +1,26 @@
+- name: Install HTTPD
+  apt: 
+    name: apache2 
+    state: present
+
+- name: Delete default files in HTTPD conf.d directory
+  file:
+    state: absent
+    path: /etc/httpd/conf.d/{{ item }}
+  with_items:
+    - autoindex.conf
+    - README
+    - userdir.conf
+    - welcome.conf
+    - ssl.conf
+
+- name: Install apache2 vhost in sites-available
+  template: 
+    src: opal.j2
+    dest: /etc/apache2/sites-available/opal.conf
+
+- name: Create a symlink for vhost in sites-enabled 
+  file:
+    src: /etc/apache2/sites-available/opal.conf
+    dest: /etc/apache2/sites-enabled/opal.conf
+    state: link

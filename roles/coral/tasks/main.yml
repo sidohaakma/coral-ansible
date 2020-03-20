@@ -16,6 +16,4 @@
     src: docker-compose.yml
     dest: /usr/local/coral/coral-docker-dist_{{ coral_version }}/
   
-
-
     
