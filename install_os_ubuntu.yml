@@ -1,0 +1,19 @@
+- name: Deployment for Opal (deploy with Coral release)
+  hosts: opal
+  vars:
+    coral_version: 3.0.1
+    ci: false
+    httpd:
+      ssl: 
+        enabled: false
+    firewall:
+      enabled: false
+      ranges: 
+        - xxxx      
+  roles:
+   - ubuntu_init
+   - sshd
+   - ubuntu_firewall
+   - coral
+   - ubuntu_httpd
+   - ubuntu_httpd_ssl

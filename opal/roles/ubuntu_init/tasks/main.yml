@@ -1,7 +1,6 @@
 - name: Install packages to install Coral
   apt:
-    name: 
-      - unzip
+    name: unzip
     state: present
 
 - name: Update bind rules ipv6 for Docker 
