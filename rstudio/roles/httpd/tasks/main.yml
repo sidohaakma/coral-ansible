@@ -1,0 +1,94 @@
+- name: Install HTTPD and HTTPD-modules
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+   - httpd
+   - mod_ssl
+   - libsemanage-python
+  when: httpd.setup|bool
+
+- name: Start and enable HTTPD (at boot time)
+  service:
+    name: httpd
+    enabled: yes
+    state: stopped
+  when: httpd.setup|bool
+
+- name: Set httpd_can_network_connect flag on and keep it persistent across reboots
+  seboolean:
+    name: httpd_can_network_connect
+    state: yes
+    persistent: yes
+  when: httpd.setup|bool
+
+- name: Add host to hosts.ini on backup server if it does not exist yet
+  local_action: command ssh bitpolII@backup.gcc.rug.nl "cd /home/bitpolII/molgenis/certs; bash add_host.bash {{inventory_hostname}}"
+  when: httpd.setup|bool and not ci|bool
+
+- name: Delete default files in HTTPD conf.d directory
+  file:
+    state: absent
+    path: /etc/httpd/conf.d/{{ item }}
+  with_items:
+    - autoindex.conf
+    - README
+    - userdir.conf
+    - welcome.conf
+    - ssl.conf
+
+- name: Copy metabrain config file
+  template: 
+    src: vhost.j2
+    dest: /etc/httpd/conf.d/{{ inventory_hostname }}.conf
+
+- name: Copy SSL config file
+  template: 
+    src: options-ssl-httpd.j2 
+    dest: /etc/httpd/conf.d/options-ssl-httpd.conf
+
+- name: Setup connection to Vault
+  command: kubectl port-forward vault-0 8200:8200 --namespace vault --kubeconfig=/var/lib/awx/kube/config
+  async: 3600
+  poll: 0
+  delegate_to: localhost
+  when: not ci|bool and httpd.setup|bool and httpd.ssl|bool
+
+- name: Create certificate-directories for SSL
+  file:
+    path: /etc/pki/tls/certs/{{ inventory_hostname }}/
+    state: directory
+  when: httpd.setup|bool and httpd.ssl|bool
+
+- name: Install SSL certs
+  copy:
+    content: "{{ lookup('hashi_vault', 'secret=secret/ops/certificate/ssl/wildcard/gcc.rug.nl:{{ item }} token={{ vault.token }} url=http://localhost:8200')}}"  
+    dest: "/etc/pki/tls/certs/{{ inventory_hostname }}/{{ item }}"
+  with_items:
+    - certificate.crt
+    - private.key
+    - serverchain.crt
+  when: not ci|bool and httpd.setup|bool and httpd.ssl|bool
+
+- name: Copy SSL config file
+  template: 
+    src: options-ssl-httpd.j2 
+    dest: /etc/httpd/conf.d/options-ssl-httpd.conf
+  when: not ci|bool and httpd.setup|bool
+
+- name: Install HTTPD virtualhost configuration with SSL
+  template: 
+    src: vhost_ssl.j2
+    dest: /etc/httpd/conf.d/{{ inventory_hostname }}.conf
+  when: httpd.setup|bool and httpd.ssl|bool
+
+- name: Stop connection to Vault
+  command: pkill kubectl -9
+  delegate_to: localhost
+  when: not ci|bool and httpd.setup|bool and httpd.ssl|bool
+
+- name: Install HTTPD virtualhost configuration
+  template: 
+    src: vhost.j2
+    dest: /etc/httpd/conf.d/{{ inventory_hostname }}.conf
+  when: httpd.setup|bool and not httpd.ssl|bool

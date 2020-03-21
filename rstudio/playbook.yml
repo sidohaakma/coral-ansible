@@ -1,0 +1,18 @@
+# specify hostgroup to specify the hosts which the template should address.
+
+# - name: Sign host keys for analysis-team Jenkins instance
+#   import_playbook: ssh-host-signer.yml
+
+- name: Deployment for RStudio webbased server
+  hosts: rstudio
+  vars:
+    httpd:
+      setup: true
+      ssl: true
+    setup_rstudio: true
+    ci: false
+  roles:
+   - init
+   - sshd
+   - rstudio
+   - httpd

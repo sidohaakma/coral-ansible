@@ -1,0 +1,12 @@
+- name: Install our specific version of RStudio.
+  yum:
+    name: https://download2.rstudio.org/server/fedora28/x86_64/rstudio-server-rhel-1.2.5019-x86_64.rpm
+    state: present
+  when: setup_rstudio|bool
+
+- name: Start and enable RStudio (at boot time)
+  service:
+    name: rstudio-server
+    enabled: yes
+    state: started
+  when: setup_rstudio|bool

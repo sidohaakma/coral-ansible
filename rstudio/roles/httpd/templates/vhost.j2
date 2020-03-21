@@ -1,0 +1,45 @@
+<VirtualHost {{ inventory_hostname }}:80>
+   ServerAdmin admin@molgenis.org
+   
+   ServerName {{ inventory_hostname }}
+   ServerAlias www.{{ inventory_hostname }}
+
+   <Location />
+   {% for range in ip_ranges %}
+     Require ip {{ range }}
+   {% endfor %}
+   </Location>
+   
+   RewriteEngine on
+   RewriteCond %{SERVER_NAME} ={{ inventory_hostname }}
+   RewriteRule ^ https://%{SERVER_NAME}%{REQUEST_URI} [NE,R=permanent]
+   
+</VirtualHost>
+
+<VirtualHost {{ inventory_hostname }}:443>
+
+   ServerAdmin admin@molgenis.org
+
+   ServerName {{ inventory_hostname }}
+   ServerAlias {{ inventory_hostname }}
+
+   <Location />
+   {% for range in ip_ranges %}
+     Require ip {{ range }}
+   {% endfor %}
+   </Location>
+
+   ProxyRequests Off
+   ProxyPreserveHost On
+   
+   ProxyPass / http://localhost:8787/
+   ProxyPassReverse / http://localhost:8787/
+
+   RequestHeader set X-Forwarded-Proto “https”
+
+   SSLEngine On
+
+   SSLCertificateFile /etc/pki/tls/certs/{{ inventory_hostname }}.crt
+   SSLCertificateKeyFile /etc/pki/tls/private/{{ inventory_hostname }}.key
+   SSLCertificateChainFile /etc/pki/tls/certs/server-chain.crt
+</VirtualHost>

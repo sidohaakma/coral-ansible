@@ -1,0 +1,13 @@
+- name: Install packages which are used by the default installation (to use copy command in Ansible)
+  yum:
+    name: "{{ item }}"
+    state: present
+  with_items:
+   - redhat-lsb-core
+   - libselinux-python
+   - epel-release
+   - nano
+   - sudo
+   - rsync
+   - lsof
+   - curl
