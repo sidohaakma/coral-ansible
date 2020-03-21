@@ -1,6 +1,0 @@
----
-- name: Reload SSH configuration.
-  service:
-    name: sshd
-    state: reloaded
-  become: true

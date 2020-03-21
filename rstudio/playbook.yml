@@ -3,19 +3,16 @@
 # - name: Sign host keys for analysis-team Jenkins instance
 #   import_playbook: ssh-host-signer.yml
 
-- name: Deployment for analysis-team Jenkins instance
+- name: Deployment for RStudio webbased server
   hosts: rstudio
   vars:
     httpd:
       setup: true
       ssl: true
     setup_rstudio: true
-    setup_backup: true
     ci: false
   roles:
-   - preinstall
-   - monitoring
+   - init
    - sshd
    - rstudio
    - httpd
-   - backup
