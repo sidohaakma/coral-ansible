@@ -18,6 +18,9 @@
     firewall:
       enabled: true
       ranges: 
+        # university range
+        - x.x.x.x/x
+        # cental analysis server - please ask molgenis-operations@umcg.nl for details
         - x.x.x.x/32
     mysql:
       root_db_password: "xxxxx" 
