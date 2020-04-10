@@ -1,0 +1,66 @@
+- name: install Oracle Java JDK 8
+  yum:
+    state: present
+    name: jdk1.8-1.8.0_181
+
+- name: add Obiba repository
+  yum_repository:
+    name: Opal
+    description: Obiba repository
+    baseurl: https://dl.bintray.com/obiba/rpm
+    gpgkey: https://bintray.com/user/downloadSubjectPublicKey?username=bintray
+
+- name: install Opal and dependencies
+  yum: 
+    name: 
+      - opal-server-{{ opal.version }}-1
+      - opal-rserver-{{ rserver.version }}-1
+      - opal-python-client
+    state: present
+    disable_gpg_check: yes
+
+- name: hash Opal administrator password
+  shell: echo -n {{ opal.administrator.password }} | xargs java -jar /usr/share/opal/tools/lib/obiba-password-hasher-*-cli.jar 2>&1 | tail -n 1 
+  register: hashed_opal_admin_password
+
+- name: set the Opal administrator password
+  shell: cat /etc/opal/shiro.ini | sed -e 's,^administrator\s*=.*\,,administrator=\"{{ hashed_opal_admin_password.stdout }}\"\,,' > /tmp/shiro.ini && mv /tmp/shiro.ini /etc/opal/shiro.ini
+
+- name: start and enable Opal (at boottime)
+  systemd:
+    name: opal
+    enabled: yes
+    state: started
+
+- name: start and enable Opal RServe (at boottime)
+  systemd:
+    name: rserver
+    enabled: yes
+    state: started
+
+- name: create database configuration directory
+  file: 
+    path: /etc/opal/config
+    state: directory
+
+- name: generate Opal ID's database configuration
+  template:
+    src: mysql_ids.json.j2
+    dest: /etc/opal/config/mysqldb-ids.json
+  
+- name: generate Opal data database configuration
+  template: 
+    src: mysql_data.json.j2
+    dest: /etc/opal/config/mysqldb-data.json
+
+- name: configure Opal ID's database
+  shell: cat /etc/opal/config/mysqldb-ids.json | opal rest -o http://localhost:8080 -u {{ opal.administrator.username }} -p "{{ opal.administrator.password }}" -m POST /system/databases --content-type "application/json"
+  ignore_errors: true
+
+- name: configure Opal data database
+  shell: cat /etc/opal/config/mysqldb-data.json | opal rest -o http://localhost:8080 -u {{ opal.administrator.username }} -p "{{ opal.administrator.password }}" -m POST /system/databases --content-type "application/json"
+  ignore_errors: true
+
+- name: configure DataSHIELD
+  shell: opal rest -o http://localhost:8080 -u {{ opal.administrator.username }} -p "{{ opal.administrator.password }}" -m POST /datashield/packages?name=datashield
+  ignore_errors: true

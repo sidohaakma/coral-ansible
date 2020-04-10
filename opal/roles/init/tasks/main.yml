@@ -1,0 +1,11 @@
+---
+- name: start and enable sshd (at boot time)
+  systemd:
+    name: sshd
+    enabled: yes
+    state: started
+
+- name: add Epel repository
+  yum:
+    name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
+    state: present

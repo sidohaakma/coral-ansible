@@ -1,0 +1,24 @@
+---
+- name: install prerequisties
+  yum: 
+    name: yum-utils
+    state: present
+  when: httpd.ssl.letsencrypt.enabled
+
+- name: configure optional RHEL repository
+  command: yum-config-manager --enable rhui-REGION-rhel-server-extras rhui-REGION-rhel-server-optional
+  when: httpd.ssl.letsencrypt.enabled
+
+- name: install Certbot
+  yum: 
+    name: 
+     - certbot 
+     - python2-certbot-apache
+    state: present
+  when: httpd.ssl.letsencrypt.enabled
+
+- name: configure SSL
+  command: certbot --apache --non-interactive --agree-tos -m admin@abcdstudie.nl -d opal.abcdstudie.nl
+  when: httpd.ssl.letsencrypt.enabled
+  notify: restart httpd
+

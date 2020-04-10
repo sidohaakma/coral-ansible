@@ -1,0 +1,34 @@
+- name: Deployment for Opal (native RPM deployment)
+  hosts: opal
+  vars:
+    opal:
+      version: 2.16.0
+      administrator:
+        username: administrator
+        password: xxxxx
+    rserver:
+      version: 1.4.0
+    ci: false
+    httpd:
+      ssl: 
+        default:
+          enabled: false
+        letsencrypt:
+          enabled: true
+    firewall:
+      enabled: true
+      ranges: 
+        - x.x.x.x/32
+    mysql:
+      root_db_password: "xxxxx" 
+      user:
+        name: opal
+        password: "xxxxx"
+  roles:
+   - init
+   - mysql
+   - opal
+   - httpd
+   - httpd_ssl
+   - httpd_ssl_letsencrypt
+   - firewall
