@@ -9,3 +9,8 @@
   yum:
     name: "https://dl.fedoraproject.org/pub/epel/epel-release-latest-7.noarch.rpm"
     state: present
+
+- name: Create the releases repository for MOLGENIS to be able to install JDK 8
+  copy:
+    src: molgenis-releases.repo
+    dest: /etc/yum.repos.d/molgenis-releases.repo
