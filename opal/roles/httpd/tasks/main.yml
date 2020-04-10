@@ -1,0 +1,24 @@
+---
+- name: install HTTPD
+  yum: 
+    name: 
+      - httpd 
+      - mod_ssl
+    state: installed
+
+- name: delete default files in HTTPD conf.d directory
+  file:
+    state: absent
+    path: /etc/httpd/conf.d/{{ item }}
+  with_items:
+    - autoindex.conf
+    - README
+    - userdir.conf
+    - welcome.conf
+    - ssl.conf
+
+- name: install HTTPD virtualhost configuration
+  template: 
+    src: opal.j2
+    dest: /etc/httpd/conf.d/{{ inventory_hostname }}.conf
+  notify: restart httpd

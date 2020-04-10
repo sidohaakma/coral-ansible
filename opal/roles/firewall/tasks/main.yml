@@ -1,0 +1,161 @@
+---
+- name: install virt-what to determine hypervisor
+  yum:
+    name: virt-what
+    state: present
+
+- name: determine hypervisor to know when to downgrade firewalld
+  command: "/usr/sbin/virt-what"
+  register: hypervisor
+
+- name: install firewalld
+  yum:
+    name: firewalld
+    state: present
+  notify: reload firewalld
+  when: hypervisor.stdout != "openvz"
+
+- name: install old version of firewalld for OpenVZ
+  yum:
+    name: "{{ item }}"
+    state: present
+    allow_downgrade: true
+  with_items:
+    - http://vault.centos.org/7.6.1810/os/x86_64/Packages/firewalld-0.5.3-5.el7.noarch.rpm 
+    - http://vault.centos.org/7.6.1810/os/x86_64/Packages/firewalld-filesystem-0.5.3-5.el7.noarch.rpm 
+    - http://vault.centos.org/7.6.1810/os/x86_64/Packages/python-firewall-0.5.3-5.el7.noarch.rpm
+  when: hypervisor.stdout == "openvz"
+
+- name: install yum versionlock
+  yum:
+    name: yum-versionlock
+    state: present
+  when: hypervisor.stdout == "openvz"
+
+- name: versionlock the firewalld
+  command: "yum versionlock firewalld firewalld-filesystem python-firewall"  
+  when: hypervisor.stdout == "openvz"
+  args:
+    warn: false
+
+- name: enable service firewalld and ensure it is not masked
+  systemd:
+    name: firewalld
+    enabled: yes
+    masked: no
+    state: started
+
+- name: add firewalld zone opal
+  firewalld:
+    zone: opal
+    state: present
+    permanent: yes
+  notify: reload firewalld
+
+- name: add service ssh to zone opal
+  firewalld:
+    zone: opal
+    service: ssh
+    state: enabled
+    permanent: yes
+  notify: reload firewalld
+
+- name: allow administrators to zone opal
+  firewalld:
+    source: "{{ item }}"
+    zone: opal
+    state: enabled
+    permanent: yes
+  with_items:
+    "{{ firewall.ranges }}"
+  notify: reload firewalld
+
+- name: remove service ssh from firewalld zone public
+  firewalld:
+    zone: public
+    service: ssh
+    state: disabled
+    permanent: yes
+  notify: reload firewalld
+
+# this section below has to wait till we run ansible 2.8 or higher
+# we need new ansible AWX tower
+# - name: add icmp echo-request allowed to firewalld zone ssh
+#   firewalld:
+#     zone: ssh
+#     state: enabled
+#     permanent: yes
+#     icmp_block: echo-request
+#   notify: reload firewalld
+
+- name: add service http to firewalld zone opal
+  firewalld:
+    zone: opal
+    service: http
+    state: enabled
+    permanent: yes
+  notify: reload firewalld
+
+- name: add service https to firewalld zone opal
+  firewalld:
+    zone: opal
+    service: https
+    state: enabled
+    permanent: yes
+  notify: reload firewalld
+
+- name: remove service http from firewalld zone public
+  firewalld:
+    zone: public
+    service: http
+    state: disabled
+    permanent: yes
+  notify: reload firewalld
+
+- name: remove service https from firewalld zone public
+  firewalld:
+    zone: public
+    service: http
+    state: disabled
+    permanent: yes
+  notify: reload firewalld
+
+- name: remove service cockpit from firewalld zone public
+  firewalld:
+    zone: public
+    service: cockpit
+    state: disabled
+    permanent: yes
+  notify: reload firewalld
+
+- name: add firewalld zone management
+  firewalld:
+    zone: management
+    state: present
+    permanent: yes
+  notify: reload firewalld
+
+- name: add service dns to zone management
+  firewalld:
+    zone: management
+    service: dns
+    state: enabled
+    permanent: yes
+  notify: reload firewalld
+
+- name: add service dns-over-tls to zone management
+  firewalld:
+    zone: management
+    service: dns-over-tls
+    state: enabled
+    permanent: yes
+  notify: reload firewalld
+  when: hypervisor.stdout != "openvz"
+
+- name: add service ntp to zone management
+  firewalld:
+    zone: management
+    service: ntp
+    state: enabled
+    permanent: yes
+  notify: reload firewalld

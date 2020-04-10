@@ -1,0 +1,29 @@
+---
+- name: create certificate-directories for SSL
+  file:
+    path: /etc/pki/tls/certs/{{ inventory_hostname }}/
+    state: directory
+  when: httpd.ssl.default.enabled
+
+- name: install SSL certs
+  copy:
+    content: "{{ item }}"  
+    dest: "/etc/pki/tls/certs/{{ inventory_hostname }}/{{ item }}"
+  with_items:
+    - certificate.crt
+    - private.key
+    - serverchain.crt
+  when: httpd.ssl.default.enabled
+
+- name: copy SSL config file
+  template: 
+    src: options-ssl-httpd.j2 
+    dest: /etc/httpd/conf.d/options-ssl-httpd.conf
+  when: httpd.ssl.default.enabled
+
+- name: install HTTPD virtualhost configuration
+  template: 
+    src: opal_ssl.j2
+    dest: /etc/httpd/conf.d/{{ inventory_hostname }}.conf
+  when: httpd.ssl.default.enabled
+  notify: restart httpd
