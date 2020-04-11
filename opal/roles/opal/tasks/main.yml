@@ -26,6 +26,11 @@
 - name: set the Opal administrator password
   shell: cat /etc/opal/shiro.ini | sed -e 's,^administrator\s*=.*\,,administrator=\"{{ hashed_opal_admin_password.stdout }}\"\,,' > /tmp/shiro.ini && mv /tmp/shiro.ini /etc/opal/shiro.ini
 
+- name: overwrite default values for opal initscript to increase java heap
+  template:
+    src: opal
+    dest: /etc/default/opal
+
 - name: start and enable Opal (at boottime)
   systemd:
     name: opal
