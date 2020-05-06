@@ -35,7 +35,7 @@
 
 - name: configure Opal databases
   mysql_db:
-    name: opal_data
+    name: opal_ids
     state: present
 
 - name: configure Opal databases
