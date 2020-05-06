@@ -1,0 +1,11 @@
+- name: start and enable opal
+  systemd:
+    name: opal
+    enabled: yes
+    state: started
+
+- name: start and enable rserver
+  systemd:
+    name: rserver
+    enabled: yes
+    state: started

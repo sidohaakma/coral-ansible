@@ -35,9 +35,12 @@
 
 - name: configure Opal databases
   mysql_db:
-    name:
-      - opal_data
-      - opal_ids
+    name: opal_data
+    state: present
+
+- name: configure Opal databases
+  mysql_db:
+    name: opal_data
     state: present
 
 - name: add Opal-user to MySQL

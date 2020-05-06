@@ -1,4 +1,4 @@
-- name: Deployment for Opal (native RPM deployment)
+- name: Deployment for Opal (native debian package deployment)
   hosts: opal
   vars:
     opal:
@@ -9,7 +9,7 @@
     rserver:
       version: 1.4.0
     ci: false
-    httpd:
+    apache2:
       ssl: 
         default:
           enabled: false
@@ -28,10 +28,10 @@
         name: opal
         password: "xxxxx"
   roles:
-   - centos_init
-   - centos_mysql
-   - centos_opal
-   - httpd
-   - httpd_ssl
-   - httpd_ssl_letsencrypt
+   - ubuntu_init
+   - ubuntu_mongodb
+   - ubuntu_opal
+   - apache2
+   - apache2_ssl
+   - apache2_ssl_letsencrypt
    - firewall

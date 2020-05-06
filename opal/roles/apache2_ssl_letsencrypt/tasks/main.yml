@@ -1,0 +1,20 @@
+---
+- name: Install prerequisties
+  apt_repository:
+    repo: ppa:certbot/certbot
+  when: apache2.ssl.letsencrypt.enabled
+  become: true
+  
+- name: Install Certbot
+  apt: 
+    name: python-certbot-apache
+    state: present
+  when: apache2.ssl.letsencrypt.enabled
+  become: true
+
+- name: configure SSL
+  command: certbot --apache --non-interactive --agree-tos -m admin@abcdstudie.nl -d opal.abcdstudie.nl
+  when: apache2.ssl.letsencrypt.enabled
+  notify: restart apache2
+  become: true
+
