@@ -1,0 +1,12 @@
+{
+  "usedForIdentifiers": false,
+  "name": "opal_data",
+  "usage": "STORAGE",
+  "defaultStorage": true,
+  "mongoDbSettings": {
+    "url": "mongodb://localhost:27017/opal_data",
+    "username": "",
+    "password": "",
+    "properties": ""
+  }
+}

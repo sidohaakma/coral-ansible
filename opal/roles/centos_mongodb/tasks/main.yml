@@ -1,0 +1,14 @@
+- name: Add MongoDB repository
+  copy:
+    src: mongodb.repo
+    dest: /etc/yum.repos.d/mongodb.repo
+  when: mongodb.enabled
+
+- name: Install MongoDB
+  yum: 
+    name: mongodb-org
+    state: present 
+  become: true
+  notify:
+  - start mongodb
+  when: mongodb.enabled

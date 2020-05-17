@@ -1,0 +1,6 @@
+{"usedForIdentifiers": true, "name": "opal_ids", "usage": "STORAGE", "defaultStorage": false, "mongoDbSettings": {
+  "url": "mongodb://localhost:27017/opal_ids",
+  "username": "",
+  "password": "",
+  "properties": ""
+}}
