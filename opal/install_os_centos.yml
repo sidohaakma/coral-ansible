@@ -1,5 +1,5 @@
 - name: Deployment for Opal (native RPM deployment)
-  hosts: opal
+  hosts: all
   vars:
     opal:
       version: 2.16.0
@@ -23,13 +23,17 @@
         # cental analysis server - please ask molgenis-operations@umcg.nl for details
         - x.x.x.x/32
     mysql:
+      enabled: false
       root_db_password: "xxxxx" 
       user:
         name: opal
         password: "xxxxx"
+    mongodb:
+      enabled: true
   roles:
    - centos_init
    - centos_mysql
+   - centos_mongodb
    - centos_opal
    - httpd
    - httpd_ssl

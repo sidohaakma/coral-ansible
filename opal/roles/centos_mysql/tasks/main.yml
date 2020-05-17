@@ -2,6 +2,7 @@
   yum:
     name: "https://repo.mysql.com/mysql80-community-release-el7-3.noarch.rpm"
     state: present
+  when: mysql.enabled
 
 - name: install MySQL
   yum: 
@@ -11,20 +12,24 @@
       - mysql-common
       - MySQL-python
     state: present
+  when: mysql.enabled
 
 - name: start and enable MySQL (at boot time)
   systemd:
     name: mysqld
     enabled: yes
     state: started
+  when: mysql.enabled
 
 - name: get temporary root password
   shell: "grep 'A temporary password is generated for root@localhost' /var/log/mysqld.log | awk -F ' ' '{print $(NF)}'"
   register: root_db_password
+  when: mysql.enabled
 
 - name: update expired root user password
   command: mysql --user root --password={{ root_db_password.stdout }} --connect-expired-password --execute="ALTER USER 'root'@'localhost' IDENTIFIED WITH mysql_native_password BY '{{ mysql.root_db_password }}';"
   ignore_errors: true
+  when: mysql.enabled
 
 - name: create `/root/.my.cnf` with root password credentials
   template:
@@ -32,16 +37,19 @@
     dest: /root/.my.cnf
     owner: root
     mode: 0600
+  when: mysql.enabled
 
 - name: configure Opal databases
   mysql_db:
     name: opal_ids
     state: present
+  when: mysql.enabled
 
 - name: configure Opal databases
   mysql_db:
     name: opal_data
     state: present
+  when: mysql.enabled
 
 - name: add Opal-user to MySQL
   mysql_user:
@@ -49,3 +57,10 @@
     password: "{{ mysql.user.password }}"
     priv: '*.*:ALL,GRANT'
     state: present
+  when: mysql.enabled
+
+- name: Set innodb_large_prefix variable to 1
+  mysql_variables:
+    variable: innodb_large_prefix
+    value: "1"
+  when: mysql.enabled

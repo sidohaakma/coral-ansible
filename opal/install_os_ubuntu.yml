@@ -1,5 +1,5 @@
 - name: Deployment for Opal (native debian package deployment)
-  hosts: opal
+  hosts: all
   vars:
     opal:
       version: 2.16.0
@@ -16,17 +16,14 @@
         letsencrypt:
           enabled: true
     firewall:
-      enabled: true
+      enabled: false
       ranges: 
         # university range
         - x.x.x.x/x
         # cental analysis server - please ask molgenis-operations@umcg.nl for details
         - x.x.x.x/32
-    mysql:
-      root_db_password: "xxxxx" 
-      user:
-        name: opal
-        password: "xxxxx"
+    mongodb:
+      enabled: true
   roles:
    - ubuntu_init
    - ubuntu_mongodb
