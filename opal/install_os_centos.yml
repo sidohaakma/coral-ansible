@@ -19,9 +19,10 @@
       enabled: true
       ranges: 
         # university range
-        - x.x.x.x/x
+        - 80.115.26.160/32
+        - 145.117.0.0/16
         # cental analysis server - please ask molgenis-operations@umcg.nl for details
-        - x.x.x.x/32
+        - 195.169.23.119/32
     mysql:
       enabled: false
       root_db_password: "xxxxx" 
@@ -35,7 +36,7 @@
    - centos_mysql
    - centos_mongodb
    - centos_opal
+   - firewall
    - httpd
    - httpd_ssl
    - httpd_ssl_letsencrypt
-   - firewall

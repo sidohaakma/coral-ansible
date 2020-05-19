@@ -17,8 +17,17 @@
     state: present
   when: httpd.ssl.letsencrypt.enabled
 
+- name: stop firewalld to let letsencrypt validate the domain
+  systemd:
+    name: firewalld
+    state: stopped
+
 - name: configure SSL
   command: certbot --apache --non-interactive --agree-tos -m admin@abcdstudie.nl -d opal.abcdstudie.nl
   when: httpd.ssl.letsencrypt.enabled
   notify: restart httpd
 
+- name: start firewalld
+  systemd:
+    name: firewalld
+    state: started

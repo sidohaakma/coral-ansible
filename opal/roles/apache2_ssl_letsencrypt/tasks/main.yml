@@ -12,9 +12,18 @@
   when: apache2.ssl.letsencrypt.enabled
   become: true
 
+- name: stop firewalld to let letsencrypt validate the domain
+  systemd:
+    name: firewalld
+    state: stopped
+
 - name: configure SSL
   command: certbot --apache --non-interactive --agree-tos -m admin@abcdstudie.nl -d opal.abcdstudie.nl
   when: apache2.ssl.letsencrypt.enabled
   notify: restart apache2
   become: true
 
+- name: start firewalld
+  systemd:
+    name: firewalld
+    state: started

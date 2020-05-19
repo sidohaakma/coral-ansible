@@ -35,7 +35,7 @@
   shell: cat /etc/opal/shiro.ini | sed -e 's,^administrator\s*=.*\,,administrator=\"{{ hashed_opal_admin_password.stdout }}\"\,,' > /tmp/shiro.ini && mv /tmp/shiro.ini /etc/opal/shiro.ini
 
 - name: overwrite default values for opal initscript to increase java heap
-  template:
+  copy:
     src: opal
     dest: /etc/default/opal
 
@@ -57,21 +57,21 @@
     state: directory
 
 - name: generate Opal ID's database configuration
-  template:
-    src: mysql_ids.json.j2
-    dest: /etc/opal/config/mysqldb-ids.json
+  copy:
+    src: mongodb_ids.json
+    dest: /etc/opal/config/mongodb-ids.json
   
 - name: generate Opal data database configuration
-  template: 
-    src: mysql_data.json.j2
-    dest: /etc/opal/config/mysqldb-data.json
+  copy: 
+    src: mongodb_data.json.j2
+    dest: /etc/opal/config/mongodb-data.json
 
 - name: configure Opal ID's database
-  shell: cat /etc/opal/config/mysqldb-ids.json | opal rest -o http://localhost:8080 -u {{ opal.administrator.username }} -p "{{ opal.administrator.password }}" -m POST /system/databases --content-type "application/json"
+  shell: cat /etc/opal/config/mongodb-ids.json | opal rest -o http://localhost:8080 -u {{ opal.administrator.username }} -p "{{ opal.administrator.password }}" -m POST /system/databases --content-type "application/json"
   ignore_errors: true
 
 - name: configure Opal data database
-  shell: cat /etc/opal/config/mysqldb-data.json | opal rest -o http://localhost:8080 -u {{ opal.administrator.username }} -p "{{ opal.administrator.password }}" -m POST /system/databases --content-type "application/json"
+  shell: cat /etc/opal/config/mongodb-data.json | opal rest -o http://localhost:8080 -u {{ opal.administrator.username }} -p "{{ opal.administrator.password }}" -m POST /system/databases --content-type "application/json"
   ignore_errors: true
 
 - name: configure DataSHIELD

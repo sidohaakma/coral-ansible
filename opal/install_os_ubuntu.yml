@@ -28,7 +28,7 @@
    - ubuntu_init
    - ubuntu_mongodb
    - ubuntu_opal
+   - firewall
    - apache2
    - apache2_ssl
    - apache2_ssl_letsencrypt
-   - firewall
